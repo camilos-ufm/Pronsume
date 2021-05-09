@@ -6,13 +6,13 @@ using CsvHelper;
 
 namespace ProyectoFinal
 {
-    public class csv_reader
+    public class CsvReader
     {
         public static List<String> read_csv(String filename)
         {
             List<String> stringList = new List<string>();
             using var streamReader = File.OpenText(filename);
-            using var csvReader = new CsvReader(streamReader, CultureInfo.CurrentCulture);
+            using var csvReader = new CsvHelper.CsvReader(streamReader, CultureInfo.CurrentCulture);
             // csvReader.Configuration.HasHeaderRecord = true;
 
             string value;

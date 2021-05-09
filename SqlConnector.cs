@@ -5,7 +5,7 @@ using MySql.Data.MySqlClient;
 
 namespace ProyectoFinal
 {
-    public class sql_connector
+    public class SqlConnector
     {
         public string Server { get; set; }
         public string User { get; set; }
@@ -15,7 +15,7 @@ namespace ProyectoFinal
 
 
 
-        public sql_connector(string server, string user, string password, String db)
+        public SqlConnector(string server, string user, string password, String db)
         {
             Server = server;
             User = user;

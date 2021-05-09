@@ -10,7 +10,7 @@ namespace ProyectoFinal
         static String consumers { get; set; }
         static int alt { get; set; }
 
-        static sql_connector sql_c { get; set; }
+        static SqlConnector sql_c { get; set; }
         static void Main(string[] args)
         {
             if (args.Length == 5)
@@ -21,8 +21,8 @@ namespace ProyectoFinal
                     producers = int.Parse(args[2]);
                     consumers = args[3].ToString();
                     alt = int.Parse(args[4]);
-                    List<String> csv = csv_reader.read_csv($"csv/{consumers}");
-                    sql_c = new sql_connector("localhost", "dbuser", "password", "db");
+                    List<String> csv = CsvReader.read_csv($"csv/{consumers}");
+                    sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
                     sql_c.sqlConnect();
                     sql_c.createTable();
                 }
@@ -46,7 +46,7 @@ namespace ProyectoFinal
             else
             {
                 Console.WriteLine("Error: Wrong number of arguments!");
-                Console.WriteLine("Paramteres needes:\n\t1. Buffer size\n\t2. Producers\n\t3. Consumers\n\t4. Alternance");
+                Console.WriteLine("Parameters needed:\n\t1. Buffer size\n\t2. Producers\n\t3. Consumers\n\t4. Alternance");
             }
         }
     }
