@@ -1,6 +1,7 @@
 using System;
 using MySql.Data.MySqlClient;
 
+// MYSQL TUTORIAL: https://zetcode.com/csharp/mysql/
 
 namespace ProyectoFinal
 {
