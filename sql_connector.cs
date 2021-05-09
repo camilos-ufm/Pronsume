@@ -10,6 +10,9 @@ namespace ProyectoFinal
         public string User { get; set; }
         public string Password { get; set; }
         public string Db { get; set; }
+        public string Cs { get; set; }
+
+
 
         public sql_connector(string server, string user, string password, String db)
         {
@@ -17,12 +20,18 @@ namespace ProyectoFinal
             User = user;
             Password = password;
             Db = db;
+            Cs = @$"server={server};userid={user};password={password};database={db}";
         }
+
+
+
+
+
         public void sqlConnect()
         {
-            string cs = @$"server={this.Server};userid={this.User};password={this.Password};database={this.Db}";
+            // string cs = @$"server={this.Server};userid={this.User};password={this.Password};database={this.Db}";
 
-            using var con = new MySqlConnection(cs);
+            using var con = new MySqlConnection(Cs);
             con.Open();
 
             var stm = "SELECT VERSION()";
@@ -35,13 +44,12 @@ namespace ProyectoFinal
         public void createTable()
         {
 
-            string cs = @"server=localhost;userid=dbuser;password=s$cret;database=testdb";
-
-            using var con = new MySqlConnection(cs);
+            using var con = new MySqlConnection(Cs);
             con.Open();
 
             using var cmd = new MySqlCommand();
             cmd.Connection = con;
+
 
             cmd.CommandText = "DROP TABLE IF EXISTS cars";
             cmd.ExecuteNonQuery();

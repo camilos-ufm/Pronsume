@@ -11,6 +11,7 @@ namespace ProyectoFinal
             Console.WriteLine("Hello World!");
             var sql_c = new sql_connector("localhost", "dbuser", "password", "db");
             sql_c.sqlConnect();
+            sql_c.createTable();
         }
     }
 }
