@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace ProyectoFinal
 {
@@ -22,6 +24,9 @@ namespace ProyectoFinal
                     consumers = args[3].ToString();
                     alt = int.Parse(args[4]);
                     List<String> csv = CsvReader.read_csv($"csv/{consumers}");
+                    List<String> personasCsvList = CsvReader.read_csv($"csv/personas.csv");
+                    var listOfPersons = personasCsvList.Select(line => new Person(line)).ToList();
+                    Person.printPersons(listOfPersons);
                     sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
                     sql_c.sqlConnect();
                     sql_c.createTable();
