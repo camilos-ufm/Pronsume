@@ -28,12 +28,13 @@ namespace ProyectoFinal
         {
             foreach (var item in listOfPersons)
             {
-                Console.WriteLine(item.id);
-                Console.WriteLine(item.name);
-                Console.WriteLine(item.phone);
-                Console.WriteLine(item.date);
-                Console.WriteLine(item.city);
-                Console.WriteLine(item.is_produced);
+                Console.WriteLine($"id: {item.id}");
+                Console.WriteLine($"name:{item.name}");
+                Console.WriteLine($"phone: {item.phone}");
+                Console.WriteLine($"date: {item.date}");
+                Console.WriteLine($"city: {item.city}");
+                Console.WriteLine($"is_produced: {item.is_produced}");
+                Console.WriteLine();
             }
         }
 
