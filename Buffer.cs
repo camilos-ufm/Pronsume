@@ -10,7 +10,7 @@ namespace ProyectoFinal
 
         // public Array<int> buffer { get; set; }
 
-        ArrayList buffer;
+        public List<Person> buffer { get; set; }
 
         private Semaphore semProducer = new Semaphore(1, 1);
 
@@ -21,7 +21,7 @@ namespace ProyectoFinal
             
         }
 
-        public void produce(int value)
+        public void produce(Person value)
         {
             try
             {
