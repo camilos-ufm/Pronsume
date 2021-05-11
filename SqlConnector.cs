@@ -52,38 +52,33 @@ namespace ProyectoFinal
             cmd.Connection = con;
 
 
-            cmd.CommandText = "DROP TABLE IF EXISTS cars";
+            // cmd.CommandText = "CREATE TABLE IF NOT EXISTS leads";
+            // cmd.ExecuteNonQuery();
+
+            cmd.CommandText = @"CREATE TABLE IF NOT EXISTS leads(id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                    name TEXT, phone TEXT, date TEXT, city TEXT, thread_name TEXT, timestamp TIMESTAMP)";
             cmd.ExecuteNonQuery();
 
-            cmd.CommandText = @"CREATE TABLE cars(id INTEGER PRIMARY KEY AUTO_INCREMENT,
-                    name TEXT, price INT)";
+            // cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, thread_name) VALUES({person.name}, {person.phone}, {person.date}, {person.city}. {thread_name})";
+            // cmd.ExecuteNonQuery();
+
+            Console.WriteLine("Table leads created");
+
+        }
+        public void insertIntoTable(Person person, String thread_name)
+        {
+            Console.WriteLine($"To insert: {person.name} in {thread_name}");
+
+            using var con = new MySqlConnection(Cs);
+            con.Open();
+
+            using var cmd = new MySqlCommand();
+            cmd.Connection = con;
+
+            cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, thread_name) VALUES('{person.name.ToString()}', '{person.phone.ToString()}', '{person.date.ToString()}', '{person.city.ToString()}', '{thread_name.ToString()}')";
             cmd.ExecuteNonQuery();
 
-            cmd.CommandText = "INSERT INTO cars(name, price) VALUES('Audi',52642)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO cars(name, price) VALUES('Mercedes',57127)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO cars(name, price) VALUES('Skoda',9000)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO cars(name, price) VALUES('Volvo',29000)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO cars(name, price) VALUES('Bentley',350000)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO cars(name, price) VALUES('Citroen',21000)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO cars(name, price) VALUES('Hummer',41400)";
-            cmd.ExecuteNonQuery();
-
-            cmd.CommandText = "INSERT INTO cars(name, price) VALUES('Volkswagen',21600)";
-            cmd.ExecuteNonQuery();
-
-            Console.WriteLine("Table cars created");
+            Console.WriteLine($"Inserted {person.name}");
 
         }
 

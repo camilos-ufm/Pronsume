@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
 using CsvHelper;
+using System.Linq;
 
 namespace ProyectoFinal
 {
@@ -11,7 +12,7 @@ namespace ProyectoFinal
         public static List<String> read_csv(String filename)
         {
             List<String> stringList = new List<string>();
-            var lines = File.ReadLines(filename);
+            var lines = File.ReadLines(filename).Skip(1);
             // using var streamReader = File.OpenText(filename);
             // using var csvReader = new CsvHelper.CsvReader(streamReader, CultureInfo.CurrentCulture);
             // // csvReader.Configuration.HasHeaderRecord = true;

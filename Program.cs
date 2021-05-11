@@ -26,10 +26,11 @@ namespace ProyectoFinal
                     List<String> csv = CsvReader.read_csv($"csv/{consumers}");
                     List<String> personasCsvList = CsvReader.read_csv($"csv/personas.csv");
                     var listOfPersons = personasCsvList.Select(line => new Person(line)).ToList();
-                    Person.printPersons(listOfPersons);
+                    // Person.printPersons(listOfPersons);
                     sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
-                    sql_c.sqlConnect();
+                    // sql_c.sqlConnect();
                     sql_c.createTable();
+                    Buffer.pronsume(producers, listOfPersons);
                 }
                 catch (System.FormatException)
                 {
