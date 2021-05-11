@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -8,33 +9,51 @@ namespace ProyectoFinal
 {
     public class Buffer
     {
-        public static void pronsume(int producers, List<Person> listOfPersons)
+        public static void pronsume(int producersSize, int consumersSize, int bufferSize, List<Person> listOfPersons)
         {
             var syncRoot = new object();
             // var productsBuffer = new List<int>();
-            List<Person> productsBuffer = new List<Person>(10);
-            int numOfThreads = producers;
+            BlockingCollection<Person> productsBuffer = new BlockingCollection<Person>(bufferSize);
+            int numOfThreads = producersSize;
             WaitHandle[] waitHandles = new WaitHandle[numOfThreads];
+            var producedCount = 0;
 
 
             Action producer = () =>
             {
                 lock (syncRoot)
                 {
-                    var counter = 0;
+
                     while (true)
                     {
                         // Console.WriteLine("Producing");
+                        Monitor.Pulse(syncRoot);
                         try
                         {
-                            var results = from myobject in listOfPersons
-                                          where myobject.is_produced == false
-                                          select myobject;
-                            foreach (var item in results)
+                            var nonProducedPersons = from myobject in listOfPersons
+                                                     where myobject.is_produced == false
+                                                     select myobject;
+                            foreach (var nonProducedPerson in nonProducedPersons)
                             {
-                                Console.WriteLine($"P. Adding {item.name}");
-                                productsBuffer.Add(item);
-                                item.is_produced = true;
+                                Thread.Sleep(500);
+                                if (producedCount == bufferSize)
+                                {
+                                    Console.WriteLine($"*****Buffer has filled up {productsBuffer.Count} == Cnt: {producedCount}*****");
+                                    Monitor.Wait(syncRoot);
+                                    Monitor.Exit(syncRoot);
+                                    // productsBuffer.CompleteAdding();
+
+                                }
+                                else
+                                {
+                                    Monitor.Enter(syncRoot);
+                                    Monitor.Pulse(syncRoot);
+                                    productsBuffer.Add(nonProducedPerson);
+                                    Console.WriteLine($"Producing {producedCount} {nonProducedPerson.name} w/ {Thread.CurrentThread.Name}");
+                                    nonProducedPerson.is_produced = true;
+                                    producedCount++;
+                                    // Console.WriteLine($"Buffer not yet filled up {productsBuffer.Count}");
+                                }
                             }
                         }
                         catch (System.Exception e)
@@ -53,24 +72,57 @@ namespace ProyectoFinal
                 lock (syncRoot)
                     while (true)
                     {
-                        Console.WriteLine("Consuming");
-                        Monitor.Pulse(syncRoot);
+                        // Monitor.Pulse(syncRoot);
+                        // Monitor.Wait(syncRoot);
                         // productsBuffer.ForEach(Console.WriteLine);
                         // productsBuffer.ForEach(delegate (Person person) { sql_c.insertIntoTable(person, Thread.CurrentThread.Name); });
                         // productsBuffer.ForEach(delegate (Person person) { Console.WriteLine(person.name); });
-
-                        Thread.Sleep(500);
-                        foreach (Person personConsumed in productsBuffer)
+                        // foreach (Person personConsumed in productsBuffer)
+                        // {
+                        //     var sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
+                        //     Console.WriteLine($"Person to consume: {personConsumed.name}");
+                        //     sql_c.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
+                        //     // if (personConsumed.id == productsBuffer.Last().id)
+                        //     // {
+                        //     //     lastItemInBuffer = true;
+                        //     //     Console.WriteLine($"*********Consuming last person in buffer*********");
+                        //     // }
+                        // }
+                        // Thread.Sleep(500);
+                        Console.WriteLine($"Consuming w/ thread: {Thread.CurrentThread.Name}");
+                        Console.WriteLine($"producedCount: {producedCount}");
+                        if (producedCount == 5)
                         {
-                            var sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
-                            // sql_c.sqlConnect();
-                            Console.WriteLine("test");
-                            sql_c.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
-                            Console.WriteLine($"Person to consume: {personConsumed.name}");
+                            foreach (Person personConsumed in productsBuffer.GetConsumingEnumerable())
+                            {
+                                Monitor.Enter(syncRoot);
+                                Monitor.Pulse(syncRoot);
+                                Thread.Sleep(500);
+                                var sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
+                                Console.WriteLine($"Person to consume: {personConsumed.name} Cnt: {productsBuffer.Count}");
+                                sql_c.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
+                                producedCount--;
+                                Console.WriteLine($"Produced Count 0 == {producedCount}");
+                                // if (personConsumed.id == productsBuffer.Last().id)
+                                // {
+                                //     lastItemInBuffer = true;
+                                //     Console.WriteLine($"*********Consuming last person in buffer*********");
+                                // }
+                                Monitor.Exit(syncRoot);
+                                Monitor.Pulse(syncRoot);
+                            }
+                            Console.WriteLine("Trying to takeout every element of collection.");
+                            // Monitor.Enter(syncRoot);
+                            // Monitor.Pulse(syncRoot);
+                            // while (productsBuffer.TryTake(out _)) { }
+                            // foreach (var person in productsBuffer.GetConsumingEnumerable())
+                            // {
+                            //     Console.WriteLine($"REMOVING: {person.name} Count: {productsBuffer.Count}");
+                            // }
+                            // Console.WriteLine(productsBuffer.Count);
+                            // producedCount = 0;
+
                         }
-                        productsBuffer.Clear();
-                        Thread.Sleep(500);
-                        Console.WriteLine($"Consumer thread: {Thread.CurrentThread.Name}");
 
                         Monitor.Wait(syncRoot);
                     }
@@ -84,6 +136,9 @@ namespace ProyectoFinal
                     Thread.CurrentThread.Name = $"P{i}";
                     producer();
                 });
+            }
+            for (int i = 0; i < consumersSize; i++)
+            {
                 Task.Factory.StartNew(() =>
                 {
                     Thread.CurrentThread.Name = $"C{i}";
