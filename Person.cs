@@ -11,6 +11,7 @@ namespace ProyectoFinal
         public String date { get; set; }
         public String city { get; set; }
         public bool is_produced { get; set; }
+        public String produced_by { get; set; }
 
         public Person(string line)
         {
@@ -21,7 +22,6 @@ namespace ProyectoFinal
             this.date = split[4];
             this.city = split[5];
             this.is_produced = false;
-
         }
 
         public static void printPersons(List<Person> listOfPersons)
@@ -34,6 +34,7 @@ namespace ProyectoFinal
                 Console.WriteLine($"date: {item.date}");
                 Console.WriteLine($"city: {item.city}");
                 Console.WriteLine($"is_produced: {item.is_produced}");
+                Console.WriteLine($"produced_by: {item.produced_by}");
                 Console.WriteLine();
             }
         }

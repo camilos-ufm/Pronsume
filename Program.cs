@@ -32,7 +32,43 @@ namespace ProyectoFinal
                     // sql_c.sqlConnect();
                     sql_c.createTable();
                     Buffer.listOfPersons = listOfPersons;
-                    Buffer.pronsume(producers, consumersSize, buffer_size);
+                    Buffer.pronsume(producers, consumersSize, buffer_size, alt);
+                }
+                catch (System.FormatException)
+                {
+                    Console.WriteLine($"Error: Wrong parameter type! Please check your paramters!");
+                }
+                catch (System.IO.DirectoryNotFoundException)
+                {
+                    Console.WriteLine($"Error: No directory '{consumers}' found!");
+                }
+                catch (System.IO.FileNotFoundException)
+                {
+                    Console.WriteLine($"Error: No file named '{consumers}' found!");
+                }
+                catch (MySql.Data.MySqlClient.MySqlException)
+                {
+                    Console.WriteLine($"Error: Wrong MySQL settings!");
+                }
+            }
+            else if (args.Length == 4)
+            {
+                Console.WriteLine("==4");
+                try
+                {
+                    buffer_size = int.Parse(args[1]);
+                    producers = int.Parse(args[2]);
+                    alt = int.Parse(args[3]);
+                    List<String> csv = CsvReader.read_csv($"csv/def.csv");
+                    int consumersSize = csv.Count;
+                    List<String> personasCsvList = CsvReader.read_csv($"csv/personas.csv");
+                    var listOfPersons = personasCsvList.Select(line => new Person(line)).ToList();
+                    // Person.printPersons(listOfPersons);
+                    sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
+                    // sql_c.sqlConnect();
+                    sql_c.createTable();
+                    Buffer.listOfPersons = listOfPersons;
+                    Buffer.pronsume(producers, consumersSize, buffer_size, alt);
                 }
                 catch (System.FormatException)
                 {

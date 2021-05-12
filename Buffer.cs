@@ -13,7 +13,7 @@ namespace ProyectoFinal
         static int producedCount = 0;
 
         public static List<Person> listOfPersons { get; set; }
-        public static void pronsume(int producersSize, int consumersSize, int bufferSize)
+        public static void pronsume(int producersSize, int consumersSize, int bufferSize, int alternance)
         {
             Semaphore fillCount = new Semaphore(0, bufferSize);
             Semaphore emptyCount = new Semaphore(bufferSize, bufferSize);
@@ -37,6 +37,7 @@ namespace ProyectoFinal
                         int r = rnd.Next(nonProducedPersons.Count());
                         Person randomPerson = nonProducedPersons.ElementAt(r);
                         randomPerson.is_produced = false;
+                        randomPerson.produced_by = Thread.CurrentThread.Name.ToString();
                         Console.WriteLine($"Person Selected {randomPerson.name} {Thread.CurrentThread.Name}");
                         productsBuffer.Add(randomPerson);
                         listOfPersons.Remove(randomPerson);
@@ -199,7 +200,7 @@ namespace ProyectoFinal
             {
                 ThreadStart ts = new ThreadStart(producer);
                 Thread t = new Thread(ts);
-                t.Name = $"P{i}";
+                t.Name = $"P{i+1}";
                 t.Start();
                 listOfThreads.Add(t);
                 // Task.Factory.StartNew(() =>
@@ -213,7 +214,7 @@ namespace ProyectoFinal
             {
                 ThreadStart ts = new ThreadStart(consumer);
                 Thread t = new Thread(ts);
-                t.Name = $"C{i}";
+                t.Name = $"C{i+1}";
                 t.Start();
                 listOfThreads2.Add(t);
                 // Task.Factory.StartNew(() =>
