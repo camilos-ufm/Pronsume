@@ -11,7 +11,9 @@ namespace ProyectoFinal
     {
         static Random rnd = new Random();
         static int producedCount = 0;
-        public static void pronsume(int producersSize, int consumersSize, int bufferSize, List<Person> listOfPersons)
+
+        public static List<Person> listOfPersons { get; set; }
+        public static void pronsume(int producersSize, int consumersSize, int bufferSize)
         {
             Semaphore fillCount = new Semaphore(0, bufferSize);
             Semaphore emptyCount = new Semaphore(bufferSize, bufferSize);
@@ -21,34 +23,65 @@ namespace ProyectoFinal
 
             Action producer = () =>
             {
-                emptyCount.WaitOne();
-                var nonProducedPersons = from myobject in listOfPersons
-                                         where myobject.is_produced == false
-                                         select myobject;
-
-
-                int r = rnd.Next(nonProducedPersons.Count());
-                Person randomPerson = nonProducedPersons.ElementAt(r);
-                randomPerson.is_produced = false;
-                Console.WriteLine($"Person Selected {randomPerson.name} {Thread.CurrentThread.Name}");
-                productsBuffer.Add(randomPerson);
-                emptyCount.Release();
-                producedCount++;
-                if (producedCount == bufferSize)
+                while (true)
                 {
-                    Console.WriteLine("******BUFFER FILLED UP******");
+                    emptyCount.WaitOne();
+                    mutex.WaitOne();
+                    try
+                    {
+                        var nonProducedPersons = from myobject in listOfPersons
+                                                 where myobject.is_produced == false
+                                                 select myobject;
+
+
+                        int r = rnd.Next(nonProducedPersons.Count());
+                        Person randomPerson = nonProducedPersons.ElementAt(r);
+                        randomPerson.is_produced = false;
+                        Console.WriteLine($"Person Selected {randomPerson.name} {Thread.CurrentThread.Name}");
+                        productsBuffer.Add(randomPerson);
+                        listOfPersons.Remove(randomPerson);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("No more persons on memory!.");
+                    }
+
+                    mutex.Release();
                     fillCount.Release();
+                    producedCount++;
+                    if (producedCount == bufferSize)
+                    {
+                        Console.WriteLine("******BUFFER FILLED UP******");
+                        // fillCount.Release();
+                    }
                 }
+                // while (true)
+                // {
+                //     Thread.Sleep(2000);
+                //     Console.WriteLine(Thread.CurrentThread.Name);
+                // }
             };
             Action consumer = () =>
             {
-                fillCount.WaitOne();
-                Console.WriteLine($"Consuming {Thread.CurrentThread.Name}");
-                Person personConsumed = productsBuffer.Take();
-                Console.WriteLine($"Person to consume: {personConsumed.name} Cnt:{productsBuffer.Count}");
-                var sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
-                sql_c.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
-                producedCount--;
+                while (true)
+                {
+                    fillCount.WaitOne();
+                    mutex.WaitOne();
+                    Console.WriteLine($"Consuming {Thread.CurrentThread.Name}");
+                    Person personConsumed = productsBuffer.Take();
+                    Console.WriteLine($"Person to consume: {personConsumed.name} Cnt:{productsBuffer.Count}");
+                    var sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
+                    sql_c.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
+                    producedCount--;
+                    mutex.Release();
+                    emptyCount.Release();
+                }
+                // while (true)
+                // {
+                //     Thread.Sleep(2000);
+                //     Console.WriteLine(Thread.CurrentThread.Name);
+                // }
+
                 // Thread.Sleep(500);
                 // foreach (var item in productsBuffer.GetConsumingEnumerable())
                 // {
@@ -158,25 +191,37 @@ namespace ProyectoFinal
             //     }
             // };
 
+            List<Thread> listOfThreads = new List<Thread>();
+            List<Thread> listOfThreads2 = new List<Thread>();
             var handle = new EventWaitHandle(false, EventResetMode.ManualReset);
             var handle2 = new EventWaitHandle(false, EventResetMode.ManualReset);
             for (int i = 0; i < numOfThreads; i++)
             {
-                Task.Factory.StartNew(() =>
-                {
-                    Thread.CurrentThread.Name = $"P{i}";
-                    producer();
-                    handle.Set();
-                });
+                ThreadStart ts = new ThreadStart(producer);
+                Thread t = new Thread(ts);
+                t.Name = $"P{i}";
+                t.Start();
+                listOfThreads.Add(t);
+                // Task.Factory.StartNew(() =>
+                // {
+                //     Thread.CurrentThread.Name = $"P{i}";
+                //     producer();
+                //     handle.Set();
+                // });
             }
             for (int i = 0; i < consumersSize; i++)
             {
-                Task.Factory.StartNew(() =>
-                {
-                    Thread.CurrentThread.Name = $"C{i}";
-                    consumer();
-                    handle2.Set();
-                });
+                ThreadStart ts = new ThreadStart(consumer);
+                Thread t = new Thread(ts);
+                t.Name = $"C{i}";
+                t.Start();
+                listOfThreads2.Add(t);
+                // Task.Factory.StartNew(() =>
+                // {
+                //     Thread.CurrentThread.Name = $"C{i}";
+                //     consumer();
+                //     handle2.Set();
+                // });
             }
             handle.WaitOne();
             handle2.WaitOne();

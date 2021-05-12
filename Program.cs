@@ -31,7 +31,8 @@ namespace ProyectoFinal
                     sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
                     // sql_c.sqlConnect();
                     sql_c.createTable();
-                    Buffer.pronsume(producers, consumersSize, buffer_size, listOfPersons);
+                    Buffer.listOfPersons = listOfPersons;
+                    Buffer.pronsume(producers, consumersSize, buffer_size);
                 }
                 catch (System.FormatException)
                 {

@@ -75,7 +75,7 @@ namespace ProyectoFinal
             using var cmd = new MySqlCommand();
             cmd.Connection = con;
 
-            cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, thread_name) VALUES('{person.name.ToString()}', '{person.phone.ToString()}', '{person.date.ToString()}', '{person.city.ToString()}', '{thread_name.ToString()}')";
+            cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, thread_name) VALUES('{person.name.ToString().Replace("'", "\'")}', '{person.phone.ToString().Replace("'", "\'")}', '{person.date.ToString().Replace("'", "\'")}', '{person.city.ToString().Replace("'","\'")}', '{thread_name.ToString()}')";
             cmd.ExecuteNonQuery();
 
             Console.WriteLine($"Inserted {person.name}");
