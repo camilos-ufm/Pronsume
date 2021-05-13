@@ -16,6 +16,7 @@ namespace ProyectoFinal
         static float sumTimeProd = 0;
         static List<float> avgProdTime;
 
+        public static List<Producer> listOfProducers = new List<Producer>();
         public static List<Person> listOfPersons { get; set; }
         public static void pronsume(int producersSize, int consumersSize, int bufferSize, int alternance, Stopwatch watch)
         {
@@ -24,6 +25,7 @@ namespace ProyectoFinal
             Semaphore mutex = new Semaphore(1, 1);
             BlockingCollection<Person> productsBuffer = new BlockingCollection<Person>(bufferSize);
             int numOfThreads = producersSize;
+
 
             Action producer = () =>
             {
@@ -51,11 +53,17 @@ namespace ProyectoFinal
                     {
                         Console.WriteLine("No more persons on memory!.");
                     }
+                    var currentProductor = from myobject in listOfProducers
+                                           where myobject.name.Equals(Thread.CurrentThread.Name.ToString())
+                                           select myobject;
+                    Producer p = currentProductor.First();
+                    watch.Stop();
+                    var elapsedMs = watch.ElapsedMilliseconds;
+                    p.time.Add(elapsedMs);
+                    p.total += 1;
                     // select lista de producers where name == currenthread
                     // set valor de tiempo = esto que yo tengo
                     // totel de producidos +=1
-                    watch.Stop();
-                    var elapsedMs = watch.ElapsedMilliseconds;
                     mutex.Release();
                     fillCount.Release();
                     producedCount++;
@@ -89,6 +97,10 @@ namespace ProyectoFinal
                         Console.WriteLine("67");
                         watch.Stop();
                         var elapsedMs = watch.ElapsedMilliseconds;
+                        foreach (var item in listOfProducers)
+                        {
+                            Console.WriteLine($"Producer.{item.name}:\t {item.totalTime()}");
+                        }
                         Console.WriteLine($"Total elapsed time: {elapsedMs}ms");
                         System.Environment.Exit(0);
                     }
@@ -104,9 +116,12 @@ namespace ProyectoFinal
             var handle2 = new EventWaitHandle(false, EventResetMode.ManualReset);
             for (int i = 0; i < numOfThreads; i++)
             {
+                string name = $"P{i + 1}";
+                Producer p = new Producer(name);
                 ThreadStart ts = new ThreadStart(producer);
                 Thread t = new Thread(ts);
-                t.Name = $"P{i + 1}";
+                t.Name = name;
+                listOfProducers.Add(p);
                 t.Start();
                 listOfThreads.Add(t);
             }
