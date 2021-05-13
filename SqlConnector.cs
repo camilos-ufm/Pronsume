@@ -13,6 +13,7 @@ namespace ProyectoFinal
         public string Db { get; set; }
         public string Cs { get; set; }
 
+        public MySqlConnection ConnectionMysql { get; set; }
 
 
         public SqlConnector(string server, string user, string password, String db)
@@ -22,6 +23,8 @@ namespace ProyectoFinal
             Password = password;
             Db = db;
             Cs = @$"server={server};userid={user};password={password};database={db}";
+            ConnectionMysql = new MySqlConnection(Cs);
+            ConnectionMysql.Open();
         }
 
 
@@ -69,11 +72,8 @@ namespace ProyectoFinal
         {
             Console.WriteLine($"To insert: {person.name} in {thread_name}");
 
-            using var con = new MySqlConnection(Cs);
-            con.Open();
-
             using var cmd = new MySqlCommand();
-            cmd.Connection = con;
+            cmd.Connection = ConnectionMysql;
             Random rnd = new Random();
 
             int r = rnd.Next();
