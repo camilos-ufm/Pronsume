@@ -56,7 +56,7 @@ namespace ProyectoFinal
             // cmd.ExecuteNonQuery();
 
             cmd.CommandText = @"CREATE TABLE IF NOT EXISTS leads(id INTEGER PRIMARY KEY AUTO_INCREMENT,
-                    name TEXT, phone TEXT, date TEXT, city TEXT, thread_name TEXT, produced_by TEXT, timestamp TIMESTAMP)";
+                    name TEXT, phone TEXT, date TEXT, city TEXT, value TEXT, thread_name TEXT, produced_by TEXT, timestamp TIMESTAMP)";
             cmd.ExecuteNonQuery();
 
             // cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, thread_name) VALUES({person.name}, {person.phone}, {person.date}, {person.city}. {thread_name})";
@@ -74,8 +74,11 @@ namespace ProyectoFinal
 
             using var cmd = new MySqlCommand();
             cmd.Connection = con;
+            Random rnd = new Random();
 
-            cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, thread_name, produced_by) VALUES('{person.name.ToString().Replace("'", "\'")}', '{person.phone.ToString().Replace("'", "\'")}', '{person.date.ToString().Replace("'", "\'")}', '{person.city.ToString().Replace("'","\'")}', '{thread_name.ToString()}', '{person.produced_by.ToString()}')";
+            int r = rnd.Next();
+
+            cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, value, thread_name, produced_by) VALUES('{person.name.ToString().Replace("'", "\'")}', '{person.phone.ToString().Replace("'", "\'")}', '{person.date.ToString().Replace("'", "\'")}', '{person.city.ToString().Replace("'", "\'")}', '{r.ToString()}', '{thread_name.ToString()}', '{person.produced_by.ToString()}')";
             cmd.ExecuteNonQuery();
 
             Console.WriteLine($"Inserted {person.name}");
