@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -15,6 +16,7 @@ namespace ProyectoFinal
         static SqlConnector sql_c { get; set; }
         static void Main(string[] args)
         {
+            var watch = Stopwatch.StartNew();
             if (args.Length == 5)
             {
                 try
@@ -28,11 +30,16 @@ namespace ProyectoFinal
                     List<String> personasCsvList = CsvReader.read_csv($"csv/personas.csv");
                     var listOfPersons = personasCsvList.Select(line => new Person(line)).ToList();
                     // Person.printPersons(listOfPersons);
+                    // start timer
+
                     sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
                     // sql_c.sqlConnect();
                     sql_c.createTable();
                     Buffer.listOfPersons = listOfPersons;
-                    Buffer.pronsume(producers, consumersSize, buffer_size, alt);
+                    Buffer.pronsume(producers, consumersSize, buffer_size, alt, watch);
+                    // stop timer
+
+
                 }
                 catch (System.FormatException)
                 {
@@ -68,7 +75,7 @@ namespace ProyectoFinal
                     // sql_c.sqlConnect();
                     sql_c.createTable();
                     Buffer.listOfPersons = listOfPersons;
-                    Buffer.pronsume(producers, consumersSize, buffer_size, alt);
+                    Buffer.pronsume(producers, consumersSize, buffer_size, alt, watch);
                 }
                 catch (System.FormatException)
                 {
