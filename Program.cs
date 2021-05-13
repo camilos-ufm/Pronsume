@@ -7,6 +7,10 @@ using System.Linq;
 
 namespace ProyectoFinal
 {
+    class IsDebug
+    {
+        public static bool isDebug;
+    }
     class Program
     {
         public static int buffer_size { get; set; }
@@ -17,6 +21,7 @@ namespace ProyectoFinal
         static SqlConnector sql_c { get; set; }
         static void Main(string[] args)
         {
+            IsDebug.isDebug = true;
             var watch = Stopwatch.StartNew();
             if (args.Length == 5)
             {
@@ -55,7 +60,8 @@ namespace ProyectoFinal
             }
             else if (args.Length == 4)
             {
-                Console.WriteLine("ARGS==4");
+                if (IsDebug.isDebug)
+                    Console.WriteLine("ARGS==4");
                 try
                 {
                     buffer_size = int.Parse(args[1]);

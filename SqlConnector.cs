@@ -70,7 +70,8 @@ namespace ProyectoFinal
         }
         public void insertIntoTable(Person person, String thread_name)
         {
-            Console.WriteLine($"To insert: {person.name} in {thread_name}");
+            if (IsDebug.isDebug)
+                Console.WriteLine($"To insert: {person.name} in {thread_name}");
 
             using var cmd = new MySqlCommand();
             cmd.Connection = ConnectionMysql;
@@ -80,8 +81,8 @@ namespace ProyectoFinal
 
             cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, value, thread_name, produced_by) VALUES('{person.name.ToString().Replace("'", "\'")}', '{person.phone.ToString().Replace("'", "\'")}', '{person.date.ToString().Replace("'", "\'")}', '{person.city.ToString().Replace("'", "\'")}', '{r.ToString()}', '{thread_name.ToString()}', '{person.produced_by.ToString()}')";
             cmd.ExecuteNonQuery();
-
-            Console.WriteLine($"Inserted {person.name}");
+            if (IsDebug.isDebug)
+                Console.WriteLine($"Inserted {person.name}");
 
         }
 

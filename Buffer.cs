@@ -48,13 +48,15 @@ namespace ProyectoFinal
                         Person randomPerson = nonProducedPersons.ElementAt(r);
                         randomPerson.is_produced = false;
                         randomPerson.produced_by = Thread.CurrentThread.Name.ToString();
-                        Console.WriteLine($"Person Selected {randomPerson.name} {Thread.CurrentThread.Name}");
+                        if (IsDebug.isDebug)
+                            Console.WriteLine($"Person Selected {randomPerson.name} {Thread.CurrentThread.Name}");
                         productsBuffer.Add(randomPerson);
                         listOfPersons.Remove(randomPerson);
                     }
                     catch
                     {
-                        Console.WriteLine("No more persons on memory!.");
+                        if (IsDebug.isDebug)
+                            Console.WriteLine("No more persons on memory!.");
                     }
                     var currentProductor = from myobject in listOfProducers
                                            where myobject.name.Equals(Thread.CurrentThread.Name.ToString())
@@ -69,7 +71,8 @@ namespace ProyectoFinal
                     producedCount++;
                     if (producedCount == bufferSize)
                     {
-                        Console.WriteLine("******BUFFER FILLED UP******");
+                        if (IsDebug.isDebug)
+                            Console.WriteLine("******BUFFER FILLED UP******");
                         if (alternance == 1)
                             bufferIsFull.Release(bufferSize);
                     }
@@ -82,23 +85,27 @@ namespace ProyectoFinal
                 {
                     if (alternance == 1)
                         bufferIsFull.WaitOne();
-                    Console.WriteLine("ANDRES Y SU PSICO");
+                    if (IsDebug.isDebug)
+                        Console.WriteLine("ANDRES Y SU PSICO");
                     fillCount.WaitOne();
                     mutex.WaitOne();
-                    Console.WriteLine($"Consuming {Thread.CurrentThread.Name}");
+                    if (IsDebug.isDebug)
+                        Console.WriteLine($"Consuming {Thread.CurrentThread.Name}");
                     Person personConsumed;
                     if (productsBuffer.TryTake(out personConsumed))
                     {
-                        Console.WriteLine($"Person to consume: {personConsumed.name} Cnt:{productsBuffer.Count}");
+                        if (IsDebug.isDebug)
+                            Console.WriteLine($"Person to consume: {personConsumed.name} Cnt:{productsBuffer.Count}");
                         sqlIsFree.WaitOne();
                         sqlConnector.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
                         sqlIsFree.Release();
                         producedCount--;
                         if (producedCount == 0)
                         {
-                        Console.WriteLine("******BUFFER EMPTY******");
-                        if (alternance == 1)
-                            bufferIsEmpty.Release(bufferSize);
+                            if (IsDebug.isDebug)
+                                Console.WriteLine("******BUFFER EMPTY******");
+                            if (alternance == 1)
+                                bufferIsEmpty.Release(bufferSize);
                         }
                     }
                     else
