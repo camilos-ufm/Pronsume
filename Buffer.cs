@@ -21,7 +21,8 @@ namespace ProyectoFinal
             Semaphore fillCount = new Semaphore(0, bufferSize);
             Semaphore emptyCount = new Semaphore(bufferSize, bufferSize);
             Semaphore mutex = new Semaphore(1, 1);
-            Semaphore bufferIsFull = new Semaphore(0, 1);
+            Semaphore bufferIsFull = new Semaphore(0, bufferSize);
+            Semaphore bufferIsEmpty = new Semaphore(bufferSize, bufferSize);
             Semaphore sqlIsFree = new Semaphore(1, 1);
             BlockingCollection<Person> productsBuffer = new BlockingCollection<Person>(bufferSize);
             int numOfThreads = producersSize;
@@ -31,6 +32,8 @@ namespace ProyectoFinal
             {
                 while (true)
                 {
+                    if (alternance == 1)
+                        bufferIsEmpty.WaitOne();
                     var watch = Stopwatch.StartNew();
                     emptyCount.WaitOne();
                     mutex.WaitOne();
@@ -68,16 +71,17 @@ namespace ProyectoFinal
                     {
                         Console.WriteLine("******BUFFER FILLED UP******");
                         if (alternance == 1)
-                            bufferIsFull.Release();
+                            bufferIsFull.Release(bufferSize);
                     }
                 }
             };
             Action consumer = () =>
             {
-                if (alternance == 1)
-                    bufferIsFull.WaitOne();
+
                 while (true)
                 {
+                    if (alternance == 1)
+                        bufferIsFull.WaitOne();
                     Console.WriteLine("ANDRES Y SU PSICO");
                     fillCount.WaitOne();
                     mutex.WaitOne();
@@ -90,6 +94,12 @@ namespace ProyectoFinal
                         sqlConnector.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
                         sqlIsFree.Release();
                         producedCount--;
+                        if (producedCount == 0)
+                        {
+                        Console.WriteLine("******BUFFER EMPTY******");
+                        if (alternance == 1)
+                            bufferIsEmpty.Release(bufferSize);
+                        }
                     }
                     else
                     {
