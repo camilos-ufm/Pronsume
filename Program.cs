@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 
@@ -32,16 +31,10 @@ namespace ProyectoFinal
                     List<String> personasCsvList = CsvReader.read_csv($"csv/personas.csv");
                     var listOfPersons = personasCsvList.Select(line => new Person(line)).ToList();
                     // Person.printPersons(listOfPersons);
-                    // start timer
-
                     sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
-                    // sql_c.sqlConnect();
                     sql_c.createTable();
                     Buffer.listOfPersons = listOfPersons;
                     Buffer.pronsume(producers, consumersSize, buffer_size, alt, watch);
-                    // stop timer
-
-
                 }
                 catch (System.FormatException)
                 {
@@ -62,7 +55,7 @@ namespace ProyectoFinal
             }
             else if (args.Length == 4)
             {
-                Console.WriteLine("==4");
+                Console.WriteLine("ARGS==4");
                 try
                 {
                     buffer_size = int.Parse(args[1]);
@@ -72,9 +65,7 @@ namespace ProyectoFinal
                     int consumersSize = csv.Count;
                     List<String> personasCsvList = CsvReader.read_csv($"csv/personas.csv");
                     var listOfPersons = personasCsvList.Select(line => new Person(line)).ToList();
-                    // Person.printPersons(listOfPersons);
                     sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
-                    // sql_c.sqlConnect();
                     sql_c.createTable();
                     Buffer.listOfPersons = listOfPersons;
                     Buffer.pronsume(producers, consumersSize, buffer_size, alt, watch);

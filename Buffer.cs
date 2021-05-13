@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProyectoFinal
 {
@@ -12,9 +11,8 @@ namespace ProyectoFinal
     {
         static Random rnd = new Random();
         static int producedCount = 0;
-        static int productorsCount = 0;
-        static float sumTimeProd = 0;
-        static List<float> avgProdTime;
+
+        static SqlConnector sqlConnector = new SqlConnector("localhost", "dbuser", "password", "db");
 
         public static List<Producer> listOfProducers = new List<Producer>();
         public static List<Person> listOfPersons { get; set; }
@@ -24,6 +22,7 @@ namespace ProyectoFinal
             Semaphore emptyCount = new Semaphore(bufferSize, bufferSize);
             Semaphore mutex = new Semaphore(1, 1);
             Semaphore bufferIsFull = new Semaphore(0, 1);
+            Semaphore sqlIsFree = new Semaphore(1, 1);
             BlockingCollection<Person> productsBuffer = new BlockingCollection<Person>(bufferSize);
             int numOfThreads = producersSize;
 
@@ -62,9 +61,6 @@ namespace ProyectoFinal
                     var elapsedMs = watch.ElapsedMilliseconds;
                     p.time.Add(elapsedMs);
                     p.total += 1;
-                    // select lista de producers where name == currenthread
-                    // set valor de tiempo = esto que yo tengo
-                    // totel de producidos +=1
                     mutex.Release();
                     fillCount.Release();
                     producedCount++;
@@ -73,10 +69,7 @@ namespace ProyectoFinal
                         Console.WriteLine("******BUFFER FILLED UP******");
                         if (alternance == 1)
                             bufferIsFull.Release();
-                        // fillCount.Release();
                     }
-
-                    // Console.WriteLine($"Total elapsed time: {elapsedMs}ms");
                 }
             };
             Action consumer = () =>
@@ -93,8 +86,9 @@ namespace ProyectoFinal
                     if (productsBuffer.TryTake(out personConsumed))
                     {
                         Console.WriteLine($"Person to consume: {personConsumed.name} Cnt:{productsBuffer.Count}");
-                        var sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
-                        sql_c.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
+                        sqlIsFree.WaitOne();
+                        sqlConnector.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
+                        sqlIsFree.Release();
                         producedCount--;
                     }
                     else

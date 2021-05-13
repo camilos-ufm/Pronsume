@@ -16,14 +16,13 @@ namespace ProyectoFinal
             this.total = 0;
         }
 
-        public long averageTime(){
+        public long averageTime()
+        {
             long totalTime = 0;
             foreach (var item in this.time)
             {
-                // Console.WriteLine($"this.time: {item}");
                 totalTime += item;
             }
-            // Console.WriteLine($"Total: {this.total}");
             totalTime = totalTime / this.total;
             return totalTime;
         }
