@@ -62,7 +62,7 @@ namespace ProyectoFinal
             // cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, thread_name) VALUES({person.name}, {person.phone}, {person.date}, {person.city}. {thread_name})";
             // cmd.ExecuteNonQuery();
 
-            Console.WriteLine("Table leads created");
+            // Console.WriteLine("Table leads created");
 
         }
         public void insertIntoTable(Person person, String thread_name)

@@ -23,6 +23,7 @@ namespace ProyectoFinal
             Semaphore fillCount = new Semaphore(0, bufferSize);
             Semaphore emptyCount = new Semaphore(bufferSize, bufferSize);
             Semaphore mutex = new Semaphore(1, 1);
+            Semaphore bufferIsFull = new Semaphore(0, 1);
             BlockingCollection<Person> productsBuffer = new BlockingCollection<Person>(bufferSize);
             int numOfThreads = producersSize;
 
@@ -70,6 +71,8 @@ namespace ProyectoFinal
                     if (producedCount == bufferSize)
                     {
                         Console.WriteLine("******BUFFER FILLED UP******");
+                        if (alternance == 1)
+                            bufferIsFull.Release();
                         // fillCount.Release();
                     }
 
@@ -78,15 +81,17 @@ namespace ProyectoFinal
             };
             Action consumer = () =>
             {
+                if (alternance == 1)
+                    bufferIsFull.WaitOne();
                 while (true)
                 {
+                    Console.WriteLine("ANDRES Y SU PSICO");
                     fillCount.WaitOne();
                     mutex.WaitOne();
                     Console.WriteLine($"Consuming {Thread.CurrentThread.Name}");
                     Person personConsumed;
                     if (productsBuffer.TryTake(out personConsumed))
                     {
-                        // personConsumed = productsBuffer.Take();
                         Console.WriteLine($"Person to consume: {personConsumed.name} Cnt:{productsBuffer.Count}");
                         var sql_c = new SqlConnector("localhost", "dbuser", "password", "db");
                         sql_c.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
@@ -94,12 +99,11 @@ namespace ProyectoFinal
                     }
                     else
                     {
-                        Console.WriteLine("67");
                         watch.Stop();
                         var elapsedMs = watch.ElapsedMilliseconds;
                         foreach (var item in listOfProducers)
                         {
-                            Console.WriteLine($"Producer.{item.name}:\t {item.totalTime()}");
+                            Console.WriteLine($"Producer.{item.name}: {item.averageTime()}ms");
                         }
                         Console.WriteLine($"Total elapsed time: {elapsedMs}ms");
                         System.Environment.Exit(0);
@@ -134,7 +138,6 @@ namespace ProyectoFinal
                 listOfThreads2.Add(t);
 
             }
-            Console.WriteLine("Finished buffer");
         }
 
     }

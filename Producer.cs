@@ -16,7 +16,7 @@ namespace ProyectoFinal
             this.total = 0;
         }
 
-        public long totalTime(){
+        public long averageTime(){
             long totalTime = 0;
             foreach (var item in this.time)
             {
