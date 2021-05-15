@@ -12,6 +12,8 @@ namespace ProyectoFinal
         public String city { get; set; }
         public bool is_produced { get; set; }
         public String produced_by { get; set; }
+        public long time_to_produce { get; set; }
+        public long time_to_consume { get; set; }
 
         public Person(string line)
         {
@@ -22,6 +24,8 @@ namespace ProyectoFinal
             this.date = split[4];
             this.city = split[5];
             this.is_produced = false;
+            this.time_to_produce = 0;
+            this.time_to_consume = 0;
         }
 
         public static void printPersons(List<Person> listOfPersons)

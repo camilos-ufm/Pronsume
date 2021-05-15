@@ -48,9 +48,11 @@ namespace ProyectoFinal
                         Person randomPerson = nonProducedPersons.ElementAt(r);
                         randomPerson.is_produced = false;
                         randomPerson.produced_by = Thread.CurrentThread.Name.ToString();
+
                         if (IsDebug.isDebug)
                             Console.WriteLine($"Person Selected {randomPerson.name} {Thread.CurrentThread.Name}");
                         productsBuffer.Add(randomPerson);
+                        randomPerson.time_to_produce = watch.ElapsedMilliseconds;
                         listOfPersons.Remove(randomPerson);
                     }
                     catch
@@ -74,15 +76,17 @@ namespace ProyectoFinal
                         if (IsDebug.isDebug)
                             Console.WriteLine("******BUFFER FILLED UP******");
                         if (alternance == 1)
-                            bufferIsFull.Release(bufferSize);
+                            bufferIsFull.Release(bufferSize); 
                     }
                 }
             };
             Action consumer = () =>
             {
 
+
                 while (true)
                 {
+                    var c_watch = Stopwatch.StartNew();
                     if (alternance == 1)
                         bufferIsFull.WaitOne();
                     if (IsDebug.isDebug)
@@ -97,6 +101,8 @@ namespace ProyectoFinal
                         if (IsDebug.isDebug)
                             Console.WriteLine($"Person to consume: {personConsumed.name} Cnt:{productsBuffer.Count}");
                         sqlIsFree.WaitOne();
+                        c_watch.Stop();
+                        personConsumed.time_to_consume = c_watch.ElapsedMilliseconds;
                         sqlConnector.insertIntoTable(personConsumed, Thread.CurrentThread.Name);
                         sqlIsFree.Release();
                         producedCount--;

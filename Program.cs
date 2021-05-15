@@ -21,7 +21,7 @@ namespace ProyectoFinal
         static SqlConnector sql_c { get; set; }
         static void Main(string[] args)
         {
-            IsDebug.isDebug = true;
+            IsDebug.isDebug = false;
             var watch = Stopwatch.StartNew();
             if (args.Length == 5)
             {

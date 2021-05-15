@@ -59,7 +59,7 @@ namespace ProyectoFinal
             // cmd.ExecuteNonQuery();
 
             cmd.CommandText = @"CREATE TABLE IF NOT EXISTS leads(id INTEGER PRIMARY KEY AUTO_INCREMENT,
-                    name TEXT, phone TEXT, date TEXT, city TEXT, value TEXT, thread_name TEXT, produced_by TEXT, timestamp TIMESTAMP)";
+                    name TEXT, phone TEXT, date TEXT, city TEXT, value TEXT, thread_name TEXT, produced_by TEXT, timestamp TIMESTAMP, time_to_produce INT, time_to_consume INT)";
             cmd.ExecuteNonQuery();
 
             // cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, thread_name) VALUES({person.name}, {person.phone}, {person.date}, {person.city}. {thread_name})";
@@ -79,7 +79,7 @@ namespace ProyectoFinal
 
             int r = rnd.Next();
 
-            cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, value, thread_name, produced_by) VALUES('{person.name.ToString().Replace("'", "\'")}', '{person.phone.ToString().Replace("'", "\'")}', '{person.date.ToString().Replace("'", "\'")}', '{person.city.ToString().Replace("'", "\'")}', '{r.ToString()}', '{thread_name.ToString()}', '{person.produced_by.ToString()}')";
+            cmd.CommandText = $"INSERT INTO leads(name, phone, date, city, value, thread_name, produced_by, time_to_produce, time_to_consume) VALUES('{person.name.ToString().Replace("'", "\'")}', '{person.phone.ToString().Replace("'", "\'")}', '{person.date.ToString().Replace("'", "\'")}', '{person.city.ToString().Replace("'", "\'")}', '{r.ToString()}', '{thread_name.ToString()}', '{person.produced_by.ToString()}', '{person.time_to_produce.ToString()}', '{person.time_to_consume.ToString()}')";
             cmd.ExecuteNonQuery();
             if (IsDebug.isDebug)
                 Console.WriteLine($"Inserted {person.name}");

@@ -8,6 +8,7 @@ namespace ProyectoFinal
         public string name { get; set; }
         public List<long> time;
         public int total { get; set; }
+        public long average_time { get; set; }
 
         public Producer(string Name)
         {
@@ -24,6 +25,7 @@ namespace ProyectoFinal
                 totalTime += item;
             }
             totalTime = totalTime / this.total;
+            this.average_time = totalTime;
             return totalTime;
         }
     }
